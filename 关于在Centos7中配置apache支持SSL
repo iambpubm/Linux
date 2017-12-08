@@ -1,0 +1,33 @@
+关于在Centos7中配置apache支持SSL
+
+启动apache命令:
+systemctl start httpd.service  (注意不是:service httpd start ,老命令了) 
+
+ 默认apache是没有安装SSL模块的，所以需要安装，接着使用命令:
+
+yum install -y mod_ssl
+
+安装结束后，在你的/etc/httpd/conf.d 下面会出现一个 SSL.conf ,否则是没有的
+打开SSL.conf，要配置一下。
+首先来到<VirtualHost _default_:443> 这样的字样。寻找、替换或者自己打入如下配置：
+
+DocumentRoot “这里填你网站的根目录”
+ServerName 域名:443 
+
+接下来就是配置证书路径:
+申请好证书后，一般会给你三个文件。一个是根证书(譬如root_bundle.crt），一个是服务端证书（譬如www.xxx.com.crt)，一个是证书私钥(譬如www.xxxx.com.key).
+然后把这三个证书通过ftp传到你喜欢的文件夹中。 
+
+ 一般来说 我们网站都只要服务端单向认证，也就是不需要验证客户端，那么只要配置以下两个部分
+
+1、SSLCertificateFile  这里放你的服务端证书路径
+2、SSLCertificateKeyFile 放私钥文件路径
+
+如果你还需要客户端服务端双向，那么除了上述部分还要加入以下：
+
+1、SSLCACertificateFile  root_bundle.crt的路径
+2、SSLVerifyClient require   
+
+配好后一定要：
+1、重启apache ,不要问为什么，不告诉你
+2、尝试用https://xxxx.com 的方式来访问一下对不对 
